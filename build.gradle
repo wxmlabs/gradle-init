@@ -18,3 +18,7 @@ application {
     applicationDefaultJvmArgs = ['-Dfile.encoding=utf-8']
     mainClassName = 'org.gradle.sample.Main'
 }
+
+tasks.withType(JavaCompile){
+    options.encoding = 'UTF-8'
+}
