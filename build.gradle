@@ -1,8 +1,9 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
-group 'org.example'
+group 'com.wxmlabs'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -10,10 +11,10 @@ repositories {
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.12.+'
 }
 
-test {
-    useJUnitPlatform()
+application {
+    applicationDefaultJvmArgs = ['-Dfile.encoding=utf-8']
+    mainClassName = 'org.gradle.sample.Main'
 }
