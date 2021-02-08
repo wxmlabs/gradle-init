@@ -15,8 +15,8 @@ dependencies {
 }
 
 application {
-    applicationDefaultJvmArgs = ['-Dfile.encoding=utf-8']
-    mainClassName = 'org.gradle.sample.Main'
+    applicationDefaultJvmArgs = ['-Dfile.encoding=UTF-8']
+    mainClassName = 'com.wxmlabs.gradle.utils.GradleInit'
 }
 
 tasks.withType(JavaCompile){
