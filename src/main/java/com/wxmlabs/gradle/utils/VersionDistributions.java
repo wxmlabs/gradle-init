@@ -9,13 +9,11 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 class VersionDistributions extends HashMap<String, VersionDistribution> {
-    private final Version version;
 
     public VersionDistributions(Version version) {
         super(2);
-        this.version = version;
-        super.put("all", new VersionDistribution(version).setSuffix("all"));
-        super.put("bin", new VersionDistribution(version).setSuffix("bin"));
+        super.put("all", new VersionDistribution(version).setClassifier("all"));
+        super.put("bin", new VersionDistribution(version).setClassifier("bin"));
     }
 
     public VersionDistribution all() {

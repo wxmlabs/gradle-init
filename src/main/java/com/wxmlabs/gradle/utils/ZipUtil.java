@@ -8,6 +8,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class ZipUtil {
+    public static void unzip(File zipFile) throws IOException {
+        unzip(zipFile, zipFile.getParentFile());
+    }
 
     public static void unzip(File zipFile, File destDir) throws IOException {
         byte[] buffer = new byte[1024];

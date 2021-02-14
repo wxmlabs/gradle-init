@@ -6,9 +6,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.concurrent.ForkJoinPool;
 
-import static com.wxmlabs.gradle.utils.WrapperUtil.createSymbolicLink;
 import static com.wxmlabs.gradle.utils.WrapperUtil.download;
 import static com.wxmlabs.gradle.utils.WrapperUtil.getCurrentVersion;
 
@@ -22,6 +22,8 @@ public class GradleInit {
     private JsonFactory jsonFactory;
 
     public static void main(String[] args) {
+        System.setProperty("user.language", "en");
+        Locale.setDefault(Locale.ENGLISH);
         GradleInit init = new GradleInit();
         init.init();
     }
@@ -48,19 +50,11 @@ public class GradleInit {
             Version currentVersion = getCurrentVersion(download);
             VersionDistributions currentDistributions = new VersionDistributions(currentVersion);
             VersionDistribution currentA = currentDistributions.all();
-            VersionDistribution currentB = currentDistributions.bin();
             if (!WrapperUtil.isOk(currentA)) {
                 download(download, currentA);
                 WrapperUtil.unzip(currentA);
                 WrapperUtil.markOk(currentA);
-            }
-            if (!WrapperUtil.isOk(currentB)) {
-                try {
-                    createSymbolicLink(currentB, currentA);
-                    WrapperUtil.markOk(currentB);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                WrapperUtil.makeCurrentSymbolicLink(currentA);
             }
 
             // create symbolic link for other versions
@@ -77,7 +71,7 @@ public class GradleInit {
                         .filter(distribution -> !WrapperUtil.isOk(distribution))
                         .forEach(distribution -> {
                             try {
-                                WrapperUtil.createSymbolicLink(distribution, currentA);
+                                WrapperUtil.createSymbolicLinkToCurrent(distribution);
                                 WrapperUtil.markOk(distribution);
                             } catch (IOException e) {
                                 e.printStackTrace();

@@ -14,19 +14,19 @@ class VersionDistribution {
         this.version = version;
     }
 
-    private String suffix = "bin";
+    private String classifier = "bin"; // must be bin or all
 
-    VersionDistribution setSuffix(String suffix) {
-        this.suffix = suffix;
+    VersionDistribution setClassifier(String classifier) {
+        this.classifier = classifier;
         return this;
     }
 
-    public File local() {
-        String filePath = String.join(File.separator, getGradleUserHome(), "wrapper", "dists", name(), distUriHash(remote().toString()), fileName());
+    public File localZip() {
+        String filePath = String.join(File.separator, getGradleUserHome(), "wrapper", "dists", name(), distUriHash(remoteUri().toString()), fileName());
         return new File(filePath);
     }
 
-    public URI remote() {
+    public URI remoteUri() {
         try {
             return safeUri(new URI(String.join("/", gradleDistributionsBaseUri, fileName())));
         } catch (URISyntaxException e) {
@@ -34,12 +34,17 @@ class VersionDistribution {
         }
     }
 
-    File okFile() {
-        return new File(local().getParentFile(), fileName() + ".ok");
+    File markerFile() {
+        return new File(localZip().getParentFile(), fileName() + ".ok");
     }
 
     public File gradleHome() {
-        return new File(local().getParentFile(), gradleName());
+        return new File(localZip().getParentFile(), gradleName());
+    }
+
+    File currentVersionSymbolicLink() {
+        String filePath = String.join(File.separator, getGradleUserHome(), "wrapper", "dists", "current");
+        return new File(filePath);
     }
 
     @Override
@@ -52,7 +57,7 @@ class VersionDistribution {
     }
 
     String name() {
-        return String.format("%s-%s", gradleName(), suffix);
+        return String.format("%s-%s", gradleName(), classifier);
     }
 
     String fileName() {

@@ -7,6 +7,8 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+import static com.wxmlabs.gradle.utils.FileUtil.createRelativeSymbolicLink;
+
 public class WrapperUtil {
     static Version getCurrentVersion(Download download) throws Exception {
         byte[] currentVersionContent = download.download(URI.create("https://services.gradle.org/versions/current"));
@@ -16,41 +18,37 @@ public class WrapperUtil {
     }
 
     static void download(Download download, VersionDistribution distribution) throws Exception {
-        File distFile = distribution.local();
+        File distFile = distribution.localZip();
         if (!distFile.exists() || distFile.length() < 1) {
             //noinspection ResultOfMethodCallIgnored
             distFile.getParentFile().mkdirs();
             File tmpFile = File.createTempFile(distribution.gradleName() + "_", null, distFile.getParentFile());
             tmpFile.deleteOnExit();
-            download.download(distribution.remote(), tmpFile);
+            download.download(distribution.remoteUri(), tmpFile);
             Files.move(tmpFile.toPath(), distFile.toPath(), StandardCopyOption.ATOMIC_MOVE);
         }
     }
 
-    static void createSymbolicLink(VersionDistribution distribution, VersionDistribution current) throws IOException {
-        File target = current.gradleHome();
-        File link = distribution.gradleHome();
-        if (link.exists()) {
-            return;
-        }
-        //noinspection ResultOfMethodCallIgnored
-        link.getParentFile().mkdirs();
-        Files.createSymbolicLink(link.toPath(), target.toPath());
+    static void makeCurrentSymbolicLink(VersionDistribution distribution) throws IOException {
+        createRelativeSymbolicLink(distribution.currentVersionSymbolicLink(), distribution.gradleHome());
+    }
+
+    static void createSymbolicLinkToCurrent(VersionDistribution distribution) throws IOException {
+        createRelativeSymbolicLink(distribution.gradleHome(), distribution.currentVersionSymbolicLink());
     }
 
     static void unzip(VersionDistribution distribution) throws IOException {
-        File zipFile = distribution.local();
-        File targetDir = distribution.gradleHome();
-        ZipUtil.unzip(zipFile, targetDir);
+        File zipFile = distribution.localZip();
+        ZipUtil.unzip(zipFile);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     static boolean isOk(VersionDistribution distribution) {
-        return distribution.okFile().exists();
+        return distribution.markerFile().exists();
     }
 
     static void markOk(VersionDistribution distribution) throws IOException {
-        File okFile = distribution.okFile();
+        File okFile = distribution.markerFile();
         if (!okFile.exists()) {
             //noinspection ResultOfMethodCallIgnored
             okFile.createNewFile();

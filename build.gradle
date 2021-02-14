@@ -15,10 +15,10 @@ dependencies {
 }
 
 application {
-    applicationDefaultJvmArgs = ['-Dfile.encoding=UTF-8']
+    applicationDefaultJvmArgs = ['-Dfile.encoding=UTF-8', '-Duser.language=en']
     mainClassName = 'com.wxmlabs.gradle.utils.GradleInit'
 }
 
-tasks.withType(JavaCompile){
+tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
