@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.concurrent.ForkJoinPool;
@@ -17,9 +18,8 @@ import static com.wxmlabs.gradle.utils.WrapperUtil.getCurrentVersion;
  * 仅下载current版本，其他版本向current版本做软链接。
  */
 public class GradleInit {
-    private Download download;
-    private Logger logger;
-    private JsonFactory jsonFactory;
+    private final Download download;
+    private final Logger logger;
 
     public static void main(String[] args) {
         System.setProperty("user.language", "en");
@@ -31,7 +31,7 @@ public class GradleInit {
     GradleInit() {
         logger = new Logger(false);
         download = new Download(logger, "gradlew", Download.UNKNOWN_VERSION);
-        jsonFactory = new JsonFactory();
+        JsonFactory jsonFactory = new JsonFactory();
     }
 
     private void init() {
@@ -52,6 +52,7 @@ public class GradleInit {
             VersionDistribution currentA = currentDistributions.all();
             if (!WrapperUtil.isOk(currentA)) {
                 download(download, currentA);
+                Files.deleteIfExists(currentA.gradleHome().toPath());
                 WrapperUtil.unzip(currentA);
                 WrapperUtil.markOk(currentA);
                 WrapperUtil.makeCurrentSymbolicLink(currentA);
@@ -71,6 +72,7 @@ public class GradleInit {
                         .filter(distribution -> !WrapperUtil.isOk(distribution))
                         .forEach(distribution -> {
                             try {
+                                Files.deleteIfExists(distribution.gradleHome().toPath());
                                 WrapperUtil.createSymbolicLinkToCurrent(distribution);
                                 WrapperUtil.markOk(distribution);
                             } catch (IOException e) {

@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
 import static com.wxmlabs.gradle.utils.FileUtil.createRelativeSymbolicLink;
@@ -20,8 +21,7 @@ public class WrapperUtil {
     static void download(Download download, VersionDistribution distribution) throws Exception {
         File distFile = distribution.localZip();
         if (!distFile.exists() || distFile.length() < 1) {
-            //noinspection ResultOfMethodCallIgnored
-            distFile.getParentFile().mkdirs();
+            Files.createDirectories(distFile.getParentFile().toPath());
             File tmpFile = File.createTempFile(distribution.gradleName() + "_", null, distFile.getParentFile());
             tmpFile.deleteOnExit();
             download.download(distribution.remoteUri(), tmpFile);
@@ -44,7 +44,8 @@ public class WrapperUtil {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     static boolean isOk(VersionDistribution distribution) {
-        return distribution.markerFile().exists();
+        File gradleExec = Paths.get(distribution.gradleHome().getPath(), "bin", "gradle").toFile();
+        return distribution.markerFile().exists() && gradleExec.exists();
     }
 
     static void markOk(VersionDistribution distribution) throws IOException {
