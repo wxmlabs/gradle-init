@@ -45,7 +45,7 @@ public class WrapperUtil {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     static boolean isOk(VersionDistribution distribution) {
         File gradleExec = Paths.get(distribution.gradleHome().getPath(), "bin", "gradle").toFile();
-        return distribution.markerFile().exists() && gradleExec.exists();
+        return distribution.markerFile().exists() && distribution.gradleHome().isDirectory() && gradleExec.exists();
     }
 
     static void markOk(VersionDistribution distribution) throws IOException {
